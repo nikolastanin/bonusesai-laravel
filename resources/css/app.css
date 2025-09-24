@@ -1,0 +1,181 @@
+@import 'tailwindcss';
+@import '../../vendor/livewire/flux/dist/flux.css';
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
+@source '../../vendor/livewire/flux/stubs/**/*.blade.php';
+@custom-variant dark (&:where(.dark, .dark *));
+@theme {
+    --color-zinc-50: var(--color-neutral-50);
+    --color-zinc-100: var(--color-neutral-100);
+    --color-zinc-200: var(--color-neutral-200);
+    --color-zinc-300: var(--color-neutral-300);
+    --color-zinc-400: var(--color-neutral-400);
+    --color-zinc-500: var(--color-neutral-500);
+    --color-zinc-600: var(--color-neutral-600);
+    --color-zinc-700: var(--color-neutral-700);
+    --color-zinc-800: var(--color-neutral-800);
+    --color-zinc-900: var(--color-neutral-900);
+    --color-zinc-950: var(--color-neutral-950);
+}
+
+@theme {
+    --color-accent: var(--color-purple-500);
+    --color-accent-content: var(--color-purple-600);
+    --color-accent-foreground: var(--color-white);
+}
+
+@layer theme {
+    .dark {
+        --color-accent: var(--color-purple-500);
+        --color-accent-content: var(--color-purple-300);
+        --color-accent-foreground: var(--color-white);
+    }
+}
+
+@layer base {
+    *,
+     ::after,
+     ::before,
+     ::backdrop,
+     ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+[data-flux-field]:not(ui-radio, ui-checkbox) {
+    @apply grid gap-2;
+}
+
+[data-flux-label] {
+    @apply !mb-0 !leading-tight;
+}
+
+input:focus[data-flux-control],
+textarea:focus[data-flux-control],
+select:focus[data-flux-control] {
+    @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
+}
+
+
+/* \[:where(&)\]:size-4 {
+    @apply size-4;
+} */
+
+
+/* Custom chat styling */
+
+@layer components {
+    /* Smooth scrolling for chat messages */
+    #chat-messages {
+        scroll-behavior: smooth;
+    }
+    /* Custom scrollbar for chat messages */
+    #chat-messages::-webkit-scrollbar {
+        width: 6px;
+    }
+    #chat-messages::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 3px;
+    }
+    #chat-messages::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+    }
+    #chat-messages::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+    /* Message bubble animations */
+    .message-bubble {
+        animation: slideInUp 0.3s ease-out;
+    }
+    .message-bubble hr {
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    /* Glassmorphism effect */
+    .glass-effect {
+        background: rgba(30, 41, 59, 0.95) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    /* Main chat container glass effect */
+    .chat-container {
+        /* background: rgba(30, 41, 59, 0.95) !important; */
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 0 !important;
+    }
+    /* Remove padding from grid area main with flux container */
+    [grid-area="main"][data-flux-container] {
+        padding: 0 !important;
+    }
+    /* Gradient text effect */
+    .gradient-text {
+        background: linear-gradient(135deg, #3b82f6, #10b981);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    /* Button hover effects */
+    .btn-gradient {
+        background: linear-gradient(135deg, #3b82f6, #10b981);
+        transition: all 0.2s ease;
+    }
+    .btn-gradient:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+    }
+    .btn-gradient:active {
+        transform: translateY(0);
+    }
+    /* Input focus effects */
+    .input-modern:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.5);
+    }
+    /* Pulsing dots animation - stable during DOM updates */
+    .parsing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .parsing-dot {
+        width: 6px;
+        height: 6px;
+        background-color: rgba(255, 255, 255, 0.6);
+        border-radius: 50%;
+        animation: pulse 1.4s ease-in-out infinite both;
+    }
+    .parsing-dot:nth-child(1) {
+        animation-delay: -0.32s;
+    }
+    .parsing-dot:nth-child(2) {
+        animation-delay: -0.16s;
+    }
+    .parsing-dot:nth-child(3) {
+        animation-delay: 0s;
+    }
+    @keyframes pulse {
+        0%,
+        80%,
+        100% {
+            transform: scale(0.8);
+            opacity: 0.5;
+        }
+        40% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+}

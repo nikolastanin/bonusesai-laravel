@@ -1,0 +1,1 @@
+<img src="https://www.bonus.ca/cdn-cgi/image/format=webp,quality=85/https://media.bonus.ca/images/bf-favicon_wp-300x300.png" alt="" class="border-2 border-none rounded-md">
