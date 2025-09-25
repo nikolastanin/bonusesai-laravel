@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 class Chat extends Model
 {
@@ -73,12 +74,12 @@ class Chat extends Model
         // Only update timestamp if there are new messages
         if ($hasNewMessages) {
             $updateData['last_message_at'] = now();
-            \Log::info('Updating last_message_at for chat ' . $this->thread_id . ' - new messages detected');
-        } else {
-            \Log::info('Skipping last_message_at update for chat ' . $this->thread_id . ' - no new messages');
         }
         
         $this->update($updateData);
+        
+        // Invalidate cache after update
+        $this->invalidateCache();
     }
     
     private function hasNewMessages(array $currentMessages, array $newMessages): bool
@@ -106,5 +107,36 @@ class Chat extends Model
         }
         
         return false;
+    }
+
+    /**
+     * Invalidate cache for this chat
+     */
+    private function invalidateCache(): void
+    {
+        Cache::forget("chat_{$this->thread_id}");
+        Cache::forget("chat_messages_{$this->thread_id}");
+        Cache::forget("user_chats_{$this->user_id}");
+    }
+
+    /**
+     * Boot method to handle model events
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Invalidate cache when chat is created, updated, or deleted
+        static::created(function ($chat) {
+            $chat->invalidateCache();
+        });
+
+        static::updated(function ($chat) {
+            $chat->invalidateCache();
+        });
+
+        static::deleted(function ($chat) {
+            $chat->invalidateCache();
+        });
     }
 }

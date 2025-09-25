@@ -27,7 +27,7 @@
                         <span class="text-white font-bold text-sm">AI</span>
                     </div>
                     <div>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">BonusFinder+ai</h3>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">BonusGPT</h3>
                         <p class="text-sm text-gray-600 dark:text-white/70">Chat your way to the best bonuses</p>
                     </div>
                 </div>

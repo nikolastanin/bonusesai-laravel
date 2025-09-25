@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Chat;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class ChatInterface extends Component
 {
@@ -16,14 +17,12 @@ class ChatInterface extends Component
     public function mount($threadId = null)
     {
         if ($threadId) {
-            // Load specific chat
-            $this->currentChat = Chat::where('thread_id', $threadId)
-                ->where('user_id', Auth::id())
-                ->first();
+            // Load specific chat with caching
+            $this->currentChat = $this->getCachedChat($threadId);
             
             if ($this->currentChat) {
                 $this->threadId = $threadId;
-                $this->messages = $this->currentChat->messages ?? [];
+                $this->messages = $this->getCachedMessages($threadId);
             } else {
                 // Chat not found, redirect to new chat
                 return redirect()->route('chat');
@@ -57,16 +56,22 @@ class ChatInterface extends Component
 
     public function loadUserChats()
     {
-        $this->chats = Auth::user()->chats()
-            ->whereRaw('json_array_length(messages) > 0')
-            ->take(10)
-            ->get();
+        $userId = Auth::id();
+        $cacheKey = "user_chats_{$userId}";
+        
+        $this->chats = Cache::remember($cacheKey, 300, function () use ($userId) { // 5 minutes cache
+            return Auth::user()->chats()
+                ->whereRaw('json_array_length(messages) > 0')
+                ->orderBy('last_message_at', 'desc')
+                ->take(10)
+                ->get();
+        });
     }
 
     public function loadChatHistory()
     {
         if ($this->currentChat) {
-            $this->messages = $this->currentChat->messages ?? [];
+            $this->messages = $this->getCachedMessages($this->currentChat->thread_id);
         }
     }
 
@@ -74,16 +79,19 @@ class ChatInterface extends Component
     {
         if ($this->currentChat) {
             $this->currentChat->updateMessages($this->messages);
+            $this->invalidateChatCache($this->currentChat->thread_id);
         } else if ($this->threadId) {
             // Try to find existing chat by threadId
-            $this->currentChat = Chat::where('thread_id', $this->threadId)
-                ->where('user_id', Auth::id())
-                ->first();
+            $this->currentChat = $this->getCachedChat($this->threadId);
             
             if ($this->currentChat) {
                 $this->currentChat->updateMessages($this->messages);
+                $this->invalidateChatCache($this->threadId);
             }
         }
+        
+        // Clear user chats cache to refresh sidebar
+        $this->invalidateUserChatsCache();
         
         // Dispatch event to update frontend and sidebar
         $this->dispatch('messages-updated');
@@ -135,5 +143,53 @@ class ChatInterface extends Component
         return view('livewire.chat-interface', [
             'threadId' => $this->threadId
         ]);
+    }
+
+    /**
+     * Get cached chat data
+     */
+    private function getCachedChat($threadId)
+    {
+        $cacheKey = "chat_{$threadId}";
+        
+        return Cache::remember($cacheKey, 600, function () use ($threadId) { // 10 minutes cache
+            return Chat::where('thread_id', $threadId)
+                ->where('user_id', Auth::id())
+                ->first();
+        });
+    }
+
+    /**
+     * Get cached messages for a chat
+     */
+    private function getCachedMessages($threadId)
+    {
+        $cacheKey = "chat_messages_{$threadId}";
+        
+        return Cache::remember($cacheKey, 600, function () use ($threadId) { // 10 minutes cache
+            $chat = Chat::where('thread_id', $threadId)
+                ->where('user_id', Auth::id())
+                ->first();
+            
+            return $chat ? ($chat->messages ?? []) : [];
+        });
+    }
+
+    /**
+     * Invalidate chat cache when messages are updated
+     */
+    private function invalidateChatCache($threadId)
+    {
+        Cache::forget("chat_{$threadId}");
+        Cache::forget("chat_messages_{$threadId}");
+    }
+
+    /**
+     * Invalidate user chats cache when chat list changes
+     */
+    private function invalidateUserChatsCache()
+    {
+        $userId = Auth::id();
+        Cache::forget("user_chats_{$userId}");
     }
 }

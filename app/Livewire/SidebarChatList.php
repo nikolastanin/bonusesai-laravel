@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Chat;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class SidebarChatList extends Component
 {
@@ -22,25 +23,39 @@ class SidebarChatList extends Component
 
     public function loadUserChats()
     {
-        $this->chats = Auth::user()->chats()
-            ->whereRaw('json_array_length(messages) > 0')
-            ->orderBy('updated_at', 'desc')
-            ->take(10)
-            ->get();
+        $userId = Auth::id();
+        $cacheKey = "user_chats_{$userId}";
+        
+        $this->chats = Cache::remember($cacheKey, 300, function () use ($userId) { // 5 minutes cache
+            return Auth::user()->chats()
+                ->whereRaw('json_array_length(messages) > 0')
+                ->orderBy('last_message_at', 'desc')
+                ->take(10)
+                ->get();
+        });
     }
 
     public function handleChatCreated()
     {
-        // Reload chats when a new chat is created
-        \Log::info('SidebarChatList: chat-created event received');
+        // Clear cache and reload chats when a new chat is created
+        $this->invalidateUserChatsCache();
         $this->loadUserChats();
     }
 
     public function handleMessagesUpdated()
     {
-        // Reload chats when messages are updated
-        \Log::info('SidebarChatList: messages-updated event received');
+        // Clear cache and reload chats when messages are updated
+        $this->invalidateUserChatsCache();
         $this->loadUserChats();
+    }
+
+    /**
+     * Invalidate user chats cache
+     */
+    private function invalidateUserChatsCache()
+    {
+        $userId = Auth::id();
+        Cache::forget("user_chats_{$userId}");
     }
 
     public function render()
