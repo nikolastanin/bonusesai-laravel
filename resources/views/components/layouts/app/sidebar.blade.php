@@ -13,9 +13,13 @@
 
             <flux:navlist variant="outline">
                 <flux:navlist.group :heading="__('Platform')" class="grid">
-                    <flux:navlist.item icon="chat-bubble-left-right" :href="route('chat')" :current="request()->routeIs('chat')" wire:navigate>{{ __('Chat') }}</flux:navlist.item>
+                    <flux:navlist.item icon="plus" :href="route('chat')" :current="request()->routeIs('chat') && !request()->routeIs('chat.thread')" wire:navigate>{{ __('New Chat') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
+
+            <div wire:key="sidebar-chat-list">
+                @livewire('sidebar-chat-list')
+            </div>
 
             <flux:spacer />
 

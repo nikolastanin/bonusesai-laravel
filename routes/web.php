@@ -11,9 +11,20 @@ Route::view('dashboard', 'chat')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::view('chat', 'chat')
-    ->middleware(['auth', 'verified'])
-    ->name('chat');
+Route::get('chat', function () {
+    // Create a new chat and redirect to the thread URL
+    $chat = \App\Models\Chat::create([
+        'user_id' => auth()->id(),
+        'thread_id' => \App\Models\Chat::generateThreadId(),
+        'messages' => [],
+    ]);
+    
+    return redirect()->route('chat.thread', ['threadId' => $chat->thread_id]);
+})->middleware(['auth', 'verified'])->name('chat');
+
+Route::get('chat/{threadId}', function ($threadId) {
+    return view('chat', ['threadId' => $threadId]);
+})->middleware(['auth', 'verified'])->name('chat.thread');
 
 // Test route for AI agent integration
 Route::get('/test-agent', function () {

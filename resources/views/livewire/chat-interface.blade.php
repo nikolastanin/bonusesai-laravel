@@ -145,16 +145,65 @@ function chatInterface() {
             const livewireMessages = @json($messages);
             this.messages = livewireMessages || [];
             
+            // Initialize threadId from Livewire
+            this.threadId = '{{ $threadId }}' || null;
             
             // Sync with Livewire whenever messages change (but don't auto-save during streaming)
             this.$watch('messages', value => {
                 // Update Livewire component
                 @this.set('messages', value);
-                // Only auto-save if not currently streaming to avoid excessive database calls
-                if (!this.isStreaming) {
+                // Only auto-save if not currently streaming and if we have a threadId (existing chat)
+                if (!this.isStreaming && this.threadId) {
                     @this.call('saveChatHistory');
                 }
             });
+            
+            // Listen for chat-created event from Livewire
+            this.$wire.on('chat-created', (data) => {
+                console.log('Chat created event received:', data);
+                this.threadId = data.threadId;
+                // Update messages if provided
+                if (data.messages) {
+                    this.messages = data.messages;
+                }
+                // Scroll to show the new message
+                this.$nextTick(() => {
+                    this.scrollToBottom();
+                });
+            });
+            
+            // Listen for messages-updated event from Livewire
+            this.$wire.on('messages-updated', (data) => {
+                console.log('Messages updated event received:', data);
+                if (data.messages) {
+                    this.messages = data.messages;
+                }
+                if (data.threadId) {
+                    this.threadId = data.threadId;
+                }
+                // Scroll to show the new message
+                this.$nextTick(() => {
+                    this.scrollToBottom();
+                });
+            });
+            
+            // Listen for new-chat-created event from Livewire
+            this.$wire.on('new-chat-created', (data) => {
+                console.log('New chat created event received:', data);
+                if (data.threadId) {
+                    this.threadId = data.threadId;
+                }
+            });
+            
+            // Listen for URL update event from Livewire
+            this.$wire.on('url-updated', (data) => {
+                console.log('URL update event received:', data);
+                if (data.url) {
+                    // Update the URL without page refresh
+                    window.history.pushState({}, '', data.url);
+                }
+            });
+            
             
             
             
@@ -462,8 +511,8 @@ function chatInterface() {
         },
         
         getThreadId() {
-            // Use the thread ID from the current chat
-            return '{{ $threadId }}';
+            // Use the thread ID from the current chat or generate a temporary one
+            return this.threadId || '{{ $threadId }}' || 'temp-' + Date.now();
         },
         
         cancelMessage() {
@@ -502,12 +551,24 @@ function chatInterface() {
             const userMessage = this.currentInput;
             this.currentInput = '';
             
+            // Check if this is the first message and we don't have a chat yet
+            if (this.messages.length === 0 && !this.threadId) {
+                // Call Livewire to create the chat and add the first message
+                @this.call('handleFirstMessage', userMessage);
+                // The UI will be updated via the events we just added
+                return;
+            }
+            
             // Add user message
             this.messages.push({
                 role: 'user',
                 content: userMessage,
                 timestamp: new Date().toISOString()
             });
+            
+            // Save user message to database immediately
+            @this.set('messages', this.messages);
+            @this.call('saveChatHistory');
             
             // Scroll to bottom after user message
             this.$nextTick(() => {
