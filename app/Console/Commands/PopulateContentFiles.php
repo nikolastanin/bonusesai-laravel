@@ -116,13 +116,20 @@ class PopulateContentFiles extends Command
         $title = $this->generateTitleFromFilename($nameWithoutExt);
         
         return [
-            'title' => $title,
-            'category' => $category,
+            'title' => $title,//passed by api
+            'category' => $category,//do we need this?todo:
             'file_size' => strlen($content),
             'word_count' => str_word_count($content),
             'line_count' => substr_count($content, "\n") + 1,
             'created_at' => now()->toISOString(),
-            'type' => 'markdown'
+            'type' => 'markdown',
+            'oplist_url'=> 'https://bonusca.gdcgroup.io/private/country-ca/region-ab/rank-1/language-en',
+            'oplist_type'=>'oplist',//brand,oplist//
+            'author'=>'Henri Hardcoded',
+            'fact_checker'=>'',
+            'site_url'=>'https://bonus.ca',
+            'location'=>'en_CA',
+            'updated_at'=>now()->toISOString(),
         ];
     }
     
