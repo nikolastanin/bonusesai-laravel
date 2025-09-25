@@ -70,19 +70,31 @@ select:focus[data-flux-control] {
     #chat-messages {
         scroll-behavior: smooth;
     }
-    /* Custom scrollbar for chat messages */
+    /* Custom scrollbar for chat messages - light mode (default) */
     #chat-messages::-webkit-scrollbar {
         width: 6px;
     }
     #chat-messages::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(0, 0, 0, 0.05);
         border-radius: 3px;
     }
     #chat-messages::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(0, 0, 0, 0.2);
         border-radius: 3px;
     }
     #chat-messages::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.3);
+    }
+    /* Custom scrollbar for chat messages - dark mode */
+    .dark #chat-messages::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 3px;
+    }
+    .dark #chat-messages::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+    }
+    .dark #chat-messages::-webkit-scrollbar-thumb:hover {
         background: rgba(255, 255, 255, 0.3);
     }
     /* Message bubble animations */
@@ -102,8 +114,15 @@ select:focus[data-flux-control] {
             transform: translateY(0);
         }
     }
-    /* Glassmorphism effect */
+    /* Glassmorphism effect - light mode (default) */
     .glass-effect {
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    /* Glassmorphism effect - dark mode */
+    .dark .glass-effect {
         background: rgba(30, 41, 59, 0.95) !important;
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
@@ -139,6 +158,13 @@ select:focus[data-flux-control] {
     .btn-gradient:active {
         transform: translateY(0);
     }
+    /* Light mode button text */
+    .btn-gradient {
+        color: white;
+    }
+    .dark .btn-gradient {
+        color: rgb(15, 23, 42);
+    }
     /* Input focus effects */
     .input-modern:focus {
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -153,9 +179,12 @@ select:focus[data-flux-control] {
     .parsing-dot {
         width: 6px;
         height: 6px;
-        background-color: rgba(255, 255, 255, 0.6);
+        background-color: rgba(0, 0, 0, 0.4);
         border-radius: 50%;
         animation: pulse 1.4s ease-in-out infinite both;
+    }
+    .dark .parsing-dot {
+        background-color: rgba(255, 255, 255, 0.6);
     }
     .parsing-dot:nth-child(1) {
         animation-delay: -0.32s;

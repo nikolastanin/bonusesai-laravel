@@ -1,32 +1,41 @@
-<div class="flex h-full min-h-screen" 
+<div class="flex h-[calc(100vh-64px)]" 
      x-data="chatInterface()" 
      x-init="init()">
     <!-- Background aesthetic: gradient + blurred blobs -->
     <div class="fixed inset-0 -z-10 overflow-hidden">
-        <div class="absolute -top-32 -left-40 h-[46rem] w-[46rem] rounded-full bg-blue-600/40 blur-3xl"></div>
-        <div class="absolute -bottom-40 -right-40 h-[46rem] w-[46rem] rounded-full bg-green-500/40 blur-3xl"></div>
-        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_50%_at_50%_0%,rgba(255,255,255,0.10)_0%,rgba(16,23,42,0.0)_60%)]"></div>
+        <!-- Dark mode background -->
+        <div class="dark:block hidden">
+            <div class="absolute -top-32 -left-40 h-[46rem] w-[46rem] rounded-full bg-blue-600/40 blur-3xl"></div>
+            <div class="absolute -bottom-40 -right-40 h-[46rem] w-[46rem] rounded-full bg-green-500/40 blur-3xl"></div>
+            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_50%_at_50%_0%,rgba(255,255,255,0.10)_0%,rgba(16,23,42,0.0)_60%)]"></div>
+        </div>
+        <!-- Light mode background -->
+        <div class="dark:hidden block">
+            <div class="absolute -top-32 -left-40 h-[46rem] w-[46rem] rounded-full bg-blue-200/30 blur-3xl"></div>
+            <div class="absolute -bottom-40 -right-40 h-[46rem] w-[46rem] rounded-full bg-green-200/30 blur-3xl"></div>
+            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_50%_at_50%_0%,rgba(0,0,0,0.02)_0%,rgba(255,255,255,0.0)_60%)]"></div>
+        </div>
     </div>
 
     <!-- Chat Interface -->
-    <div class="w-full chat-container flex flex-col max-h-screen relative z-10">
+    <div class="w-full chat-container flex flex-col h-full relative z-10 overflow-hidden">
         <!-- Chat Header -->
-        <div class="p-4 md:p-6">
+        <div class="flex-shrink-0 md:p-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-green-500 rounded-lg flex items-center justify-center shadow-lg">
                         <span class="text-white font-bold text-sm">AI</span>
                     </div>
                     <div>
-                        <h3 class="text-lg font-semibold text-white">BonusFinder+ai</h3>
-                        <p class="text-sm text-white/70">Find the best casino bonuses instantly</p>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">BonusFinder+ai</h3>
+                        <p class="text-sm text-gray-600 dark:text-white/70">Chat your way to the best bonuses</p>
                     </div>
                 </div>
             </div>
         </div>
         
         <!-- Chat Messages -->
-        <div class="flex-1 overflow-y-auto p-3 md:p-6 space-y-4 md:space-y-6 relative" id="chat-messages" x-ref="chatMessages">
+        <div class="flex-1 overflow-y-auto p-2 md:p-4 space-y-3 md:space-y-4 relative min-h-0" id="chat-messages" x-ref="chatMessages">
             <!-- Scroll to Beginning Button (shows during streaming and after) -->
             <div x-show="showScrollToTop" 
                  class="fixed bottom-20 right-4 md:right-6 z-20"
@@ -37,10 +46,10 @@
                  x-transition:leave-start="opacity-100 transform scale-100"
                  x-transition:leave-end="opacity-0 transform scale-95">
                 <button @click="scrollToCurrentMessage()"
-                        class="bg-slate-800/90 backdrop-blur-sm border border-slate-600 rounded-full p-3 shadow-lg hover:bg-slate-700/90 transition-colors group"
+                        class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-gray-300 dark:border-slate-600 rounded-full p-3 shadow-lg hover:bg-gray-100/90 dark:hover:bg-slate-700/90 transition-colors group"
                         title="Scroll to beginning of current response"
                         x-ref="scrollToTopButton">
-                    <svg class="w-5 h-5 text-white/80 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-gray-600/80 dark:text-white/80 group-hover:text-gray-800 dark:group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
                     </svg>
                 </button>
@@ -60,15 +69,15 @@
                     <div class="w-full max-w-full md:flex-1 md:max-w-[80%]">
                         <!-- Mobile: Show name above message -->
                         <div class="block md:hidden mb-1">
-                            <span class="text-xs font-medium text-white/60" 
+                            <span class="text-xs font-medium text-gray-500 dark:text-white/60" 
                                   :class="message.role === 'user' ? 'text-right block' : 'text-left'"
                                   x-text="message.role === 'user' ? 'You' : 'AI Assistant'">
                             </span>
                         </div>
                         <div class="rounded-lg p-3 md:p-4 shadow-lg border message-bubble card-hover"
-                             :class="message.role === 'user' ? 'bg-gradient-to-br from-blue-500/40 to-blue-600/40 text-white border-blue-400/30' : 'glass-effect text-white'">
+                             :class="message.role === 'user' ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white border-blue-400/30 dark:bg-gradient-to-br dark:from-blue-500/40 dark:to-blue-600/40 dark:text-white dark:border-blue-400/30' : 'bg-white/95 dark:bg-slate-800/95 text-gray-900 dark:text-white border-gray-200 dark:border-slate-600/50'">
                             <div class="text-sm md:text-base leading-relaxed" 
-                                 :class="message.role === 'user' ? 'text-white' : 'text-white/90'"
+                                 :class="message.role === 'user' ? 'text-white' : 'text-gray-900 dark:text-white'"
                                  x-html="message.formattedContent || message.content"
                                  :data-message-index="index"></div>
                         </div>
@@ -80,13 +89,13 @@
         </div>
         
         <!-- Chat Input -->
-        <div class="p-3 md:p-6 border-t border-slate-700/50">
-            <div class="relative rounded-lg border border-slate-600 bg-slate-800/90 backdrop-blur-sm p-2 shadow-lg">
+        <div class="flex-shrink-0 p-2 md:p-4 border-t border-gray-200 dark:border-slate-700/50">
+            <div class="relative rounded-lg border border-gray-300 dark:border-slate-600 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm p-2 shadow-lg">
                 <div class="flex space-x-2 md:space-x-3">
                     <input 
                         type="text" 
                         placeholder="Ask me about bonuses..." 
-                        class="flex-1 h-10 md:h-12 px-3 md:px-4 bg-slate-800/80 border-0 rounded-lg text-white placeholder-white/50 outline-none focus:ring-2 focus:ring-blue-500/40 disabled:opacity-50 disabled:cursor-not-allowed input-modern text-sm md:text-base"
+                        class="flex-1 h-10 md:h-12 px-3 md:px-4 bg-white/80 dark:bg-slate-800/80 border-0 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-white/50 outline-none focus:ring-2 focus:ring-blue-500/40 disabled:opacity-50 disabled:cursor-not-allowed input-modern text-sm md:text-base"
                         x-model="currentInput"
                         @keydown.enter="sendMessage()"
                         :disabled="isStreaming"
@@ -94,7 +103,7 @@
                     />
                     <button 
                         x-show="!isStreaming"
-                        class="inline-flex items-center gap-1 md:gap-2 rounded-lg btn-gradient px-3 md:px-5 py-2 md:py-3 font-semibold text-slate-900 shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
+                        class="inline-flex items-center gap-1 md:gap-2 rounded-lg btn-gradient px-3 md:px-5 py-2 md:py-3 font-semibold text-white dark:text-slate-900 shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
                         @click="sendMessage()"
                         :disabled="!currentInput.trim()"
                         title="Send message"
@@ -178,8 +187,10 @@ function chatInterface() {
         formatContent(content, renderJson = false) {
             console.log('formatContent called with:', content, 'renderJson:', renderJson);
             
-            // Add <br> tags for line breaks first
-            let formattedContent = content.replace(/\n/g, '<br>');
+            // Add <br> tags for line breaks, but handle multiple newlines better
+            let formattedContent = content
+                .replace(/\n\n+/g, '<br><br>') // Multiple newlines become double <br>
+                .replace(/\n/g, '<br>'); // Single newlines become single <br>
             
             // Replace JSON blocks with placeholder markers and extract data
             let jsonSnippets = [];
@@ -201,12 +212,12 @@ function chatInterface() {
                         return this.renderJsonSnippet(jsonData);
                     } catch (e) {
                         console.warn('Failed to parse JSON snippet during streaming:', jsonContent, e);
-                        return '<div class="mt-4 p-4 bg-slate-800/90 backdrop-blur-sm border border-slate-700/50 rounded-lg shadow-lg"><div class="flex items-center space-x-3"><div class="parsing-indicator"><div class="parsing-dot"></div><div class="parsing-dot"></div><div class="parsing-dot"></div></div><span class="text-sm text-white/60">🎲 Rolling the dice and parsing results...</span></div></div>';
+                        return '<div class="mt-4 p-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-gray-200 dark:border-slate-700/50 rounded-lg shadow-lg"><div class="flex items-center space-x-3"><div class="parsing-indicator"><div class="parsing-dot"></div><div class="parsing-dot"></div><div class="parsing-dot"></div></div><span class="text-sm text-gray-600 dark:text-white/60">🎲 Rolling the dice and parsing results...</span></div></div>';
                     }
                 });
                 
                 // Then, show placeholders for incomplete JSON blocks (those that start with ```json but don't have closing ```)
-                formattedContent = formattedContent.replace(/```json[\s\S]*?(?=```|$)/g, '<div class="mt-4 p-4 bg-slate-800/90 backdrop-blur-sm border border-slate-700/50 rounded-lg shadow-lg"><div class="flex items-center space-x-3"><div class="parsing-indicator"><div class="parsing-dot"></div><div class="parsing-dot"></div><div class="parsing-dot"></div></div><span class="text-sm text-white/60">🎲 Rolling the dice and parsing results...</span></div></div>');
+                formattedContent = formattedContent.replace(/```json[\s\S]*?(?=```|$)/g, '<div class="mt-4 p-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-gray-200 dark:border-slate-700/50 rounded-lg shadow-lg"><div class="flex items-center space-x-3"><div class="parsing-indicator"><div class="parsing-dot"></div><div class="parsing-dot"></div><div class="parsing-dot"></div></div><span class="text-sm text-gray-600 dark:text-white/60">🎲 Rolling the dice and parsing results...</span></div></div>');
                 
                 // Hide single backtick JSON blocks
                 formattedContent = formattedContent.replace(/`json\s*([\s\S]*?)`/g, '');
@@ -268,12 +279,17 @@ function chatInterface() {
             
             // Convert markdown
             formattedContent = formattedContent
-                .replace(/### (.*?)(?=<br>|$)/g, '<h3 class="text-lg font-semibold text-white mt-4 mb-2">$1</h3>')
-                .replace(/## (.*?)(?=<br>|$)/g, '<h2 class="text-xl font-semibold text-white mt-4 mb-2">$1</h2>')
-                .replace(/# (.*?)(?=<br>|$)/g, '<h1 class="text-2xl font-bold text-white mt-4 mb-3">$1</h1>')
+                .replace(/### (.*?)(?=<br>|$)/g, '<h3 class="text-lg font-semibold text-gray-900 dark:text-white mt-4 mb-2">$1</h3>')
+                .replace(/## (.*?)(?=<br>|$)/g, '<h2 class="text-xl font-semibold text-gray-900 dark:text-white mt-4 mb-2">$1</h2>')
+                .replace(/# (.*?)(?=<br>|$)/g, '<h1 class="text-2xl font-bold text-gray-900 dark:text-white mt-4 mb-3">$1</h1>')
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                 .replace(/\*(.*?)\*/g, '<em>$1</em>')
-                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 underline transition-colors">$1</a>');
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 underline transition-colors">$1</a>')
+                // Clean up excessive <br> tags and stray # characters
+                .replace(/(<br>\s*){3,}/g, '<br><br>') // Replace 3+ consecutive <br> with just 2
+                .replace(/<br>\s*#\s*<br>/g, '<br>') // Remove stray # characters with <br> around them
+                .replace(/^#\s*<br>/g, '') // Remove # at start of content
+                .replace(/<br>\s*#\s*$/g, ''); // Remove # at end of content
             
             console.log('Final result:', { content: formattedContent, jsonSnippets });
                 
@@ -333,9 +349,9 @@ function chatInterface() {
                                             <span class="text-white font-bold text-sm">📄</span>
                                         </div>
                                         <div class="flex-1 min-w-0">
-                                            <h5 class="text-sm font-medium text-white mb-1 line-clamp-2">${source.title}</h5>
-                                            <p class="text-xs text-white/60 mb-2">${source.source === 'knowledge_base' ? 'Knowledge Base' : 'Review'}</p>
-                                            ${source.url ? `<a href="${source.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-xs text-blue-400 hover:text-blue-300 transition-colors">
+                                            <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-1 line-clamp-2">${source.title}</h5>
+                                            <p class="text-xs text-gray-600 dark:text-white/60 mb-2">${source.source === 'knowledge_base' ? 'Knowledge Base' : 'Review'}</p>
+                                            ${source.url ? `<a href="${source.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors">
                                                 <span>Read more</span>
                                                 <span>↗</span>
                                             </a>` : ''}
@@ -363,12 +379,12 @@ function chatInterface() {
                             
                             <!-- Bonus Details -->
                             <div class="min-w-0">
-                                <h4 class="text-lg font-semibold text-white mb-2">${data.title || 'Casino Bonus'}</h4>
+                                <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">${data.title || 'Casino Bonus'}</h4>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
-                                    ${data.bonusAmount ? `<div class="text-sm text-white/80">• ${data.bonusAmount}</div>` : ''}
-                                    ${data.freeSpins ? `<div class="text-sm text-white/80">• ${data.freeSpins}</div>` : ''}
-                                    ${data.wagering ? `<div class="text-sm text-white/60">• ${data.wagering} wagering</div>` : ''}
-                                    ${data.withdrawalTime ? `<div class="text-sm text-white/60">• ${data.withdrawalTime} withdrawal</div>` : ''}
+                                    ${data.bonusAmount ? `<div class="text-sm text-gray-800 dark:text-white/80">• ${data.bonusAmount}</div>` : ''}
+                                    ${data.freeSpins ? `<div class="text-sm text-gray-800 dark:text-white/80">• ${data.freeSpins}</div>` : ''}
+                                    ${data.wagering ? `<div class="text-sm text-gray-600 dark:text-white/60">• ${data.wagering} wagering</div>` : ''}
+                                    ${data.withdrawalTime ? `<div class="text-sm text-gray-600 dark:text-white/60">• ${data.withdrawalTime} withdrawal</div>` : ''}
                                 </div>
                             </div>
                             
@@ -387,10 +403,10 @@ function chatInterface() {
                                 <span class="text-white font-bold text-sm">📄</span>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <h5 class="text-sm font-medium text-white mb-1">${data.title || 'Source'}</h5>
-                                <p class="text-xs text-white/60">${isReview ? 'Casino Review' : 'Knowledge Base'}</p>
+                                <h5 class="text-sm font-medium text-gray-900 dark:text-white mb-1">${data.title || 'Source'}</h5>
+                                <p class="text-xs text-gray-600 dark:text-white/60">${isReview ? 'Casino Review' : 'Knowledge Base'}</p>
                             </div>
-                            ${data.url ? `<a href="${data.url}" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-1 px-3 py-1.5 text-xs text-blue-400 hover:text-blue-300 hover:bg-slate-700/50 rounded-lg transition-colors"><span>Read</span><span>↗</span></a>` : ''}
+                            ${data.url ? `<a href="${data.url}" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-1 px-3 py-1.5 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 hover:bg-gray-100 dark:hover:bg-slate-700/50 rounded-lg transition-colors"><span>Read</span><span>↗</span></a>` : ''}
                         </div>
                     </div>
                 `;
@@ -489,10 +505,11 @@ function chatInterface() {
                 this.scrollToBottom();
             });
             
-            // Prepare assistant message
+            // Prepare assistant message with loading dice
             let assistantMessage = {
                 role: 'assistant',
                 content: '',
+                formattedContent: '<div class="flex items-center space-x-3"><div class="parsing-indicator"><div class="parsing-dot"></div><div class="parsing-dot"></div><div class="parsing-dot"></div></div><span class="text-sm text-gray-600 dark:text-white/60">🎲 Rolling the dice and parsing results...</span></div>',
                 timestamp: new Date().toISOString()
             };
             
@@ -575,18 +592,24 @@ function chatInterface() {
                                     if (content) {
                                         // Check if we need to create a new message for pending message ID
                                         if (pendingMessageId) {
-                                            assistantMessage = {
-                                                role: 'assistant',
-                                                content: '',
-                                                timestamp: new Date().toISOString()
-                                            };
+                                            // Only create a new message if the current one already has content
+                                            const lastMessageIndex = this.messages.length - 1;
+                                            const lastMessage = this.messages[lastMessageIndex];
                                             
-                                            this.messages.push(assistantMessage);
-                                            // Update the latest assistant message ID
-                                            this.lastAssistantMessageId = `message-${this.messages.length - 1}`;
+                                            if (lastMessage && lastMessage.content && lastMessage.content.trim() !== '') {
+                                                assistantMessage = {
+                                                    role: 'assistant',
+                                                    content: '',
+                                                    timestamp: new Date().toISOString()
+                                                };
+                                                
+                                                this.messages.push(assistantMessage);
+                                                // Update the latest assistant message ID
+                                                this.lastAssistantMessageId = `message-${this.messages.length - 1}`;
+                                            }
                                             currentMessageId = pendingMessageId;
                                             pendingMessageId = null;
-                                            console.log('🆕 Created new message for content, ID:', currentMessageId);
+                                            console.log('🆕 Updated message for content, ID:', currentMessageId);
                                         }
                                         
                                         // Unescape the content
@@ -594,6 +617,11 @@ function chatInterface() {
                                             .replace(/\\n/g, '\n')
                                             .replace(/\\"/g, '"')
                                             .replace(/\\\\/g, '\\');
+                                        
+                                        // Clear the initial loading content on first content chunk
+                                        if (assistantMessage.content === '') {
+                                            assistantMessage.formattedContent = '';
+                                        }
                                         
                                         // Update the existing assistant message content (accumulate)
                                         assistantMessage.content += content;
