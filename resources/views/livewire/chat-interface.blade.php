@@ -1,7 +1,8 @@
 <div class="flex h-[calc(100vh-64px)]" 
      x-data="chatInterface()" 
      x-init="init()">
-    <!-- Background aesthetic: gradient + blurred blobs -->
+     {{-- todo:this adds gradient bg --}}
+    {{-- <!-- Background aesthetic: gradient + blurred blobs -->
     <div class="fixed inset-0 -z-10 overflow-hidden">
         <!-- Dark mode background -->
         <div class="dark:block hidden">
@@ -15,12 +16,12 @@
             <div class="absolute -bottom-40 -right-40 h-[46rem] w-[46rem] rounded-full bg-green-200/30 blur-3xl"></div>
             <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_50%_at_50%_0%,rgba(0,0,0,0.02)_0%,rgba(255,255,255,0.0)_60%)]"></div>
         </div>
-    </div>
+    </div> --}}
 
     <!-- Chat Interface -->
     <div class="w-full chat-container flex flex-col h-full relative z-10 overflow-hidden">
         <!-- Chat Header -->
-        <div class="flex-shrink-0 md:p-4">
+        <div class="flex-shrink-0 pb-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-green-500 rounded-lg flex items-center justify-center shadow-lg">
@@ -448,8 +449,8 @@ function chatInterface() {
                             </div>
                             
                             <!-- CTA Button -->
-                            <div class="flex justify-start md:justify-end w-full max-w-[250px]">
-                                ${data.url ? `<a href="${data.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-2 px-4 h-[50px] bg-gradient-to-r from-green-500 to-green-600 text-slate-900 rounded-lg hover:shadow-lg transition-all font-semibold text-sm shadow-lg shadow-green-500/20 w-full justify-center"><span>${data.ctaText || 'Play Now'}</span><span>↗</span></a>` : ''}
+                            <div class="flex justify-start md:justify-end w-full">
+                                ${data.url ? `<a href="${data.url}" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-2 px-4 h-[50px] bg-gradient-to-r from-green-500 to-green-600 text-slate-900 rounded-lg hover:shadow-lg transition-all font-semibold text-sm shadow-lg shadow-green-500/20 w-full justify-center"><span>${data.ctaText || 'Play Now'}</span><span>↗</span></a>` : ''}
                             </div>
                         </div>
                     </div>

@@ -399,8 +399,8 @@ function chatInterface() {
                             </div>
                             
                             <!-- CTA Button -->
-                            <div class="flex justify-start md:justify-end w-full max-w-[250px]">
-                                ${data.url ? `<a href="${data.url}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-2 px-4 h-[50px] bg-gradient-to-r from-green-500 to-green-600 text-slate-900 rounded-lg hover:shadow-lg transition-all font-semibold text-sm shadow-lg shadow-green-500/20 w-full justify-center"><span>${data.ctaText || 'Play Now'}</span><span>↗</span></a>` : ''}
+                            <div class="flex justify-start md:justify-end w-full">
+                                ${data.url ? `<a href="${data.url}" target="_blank" rel="noopener noreferrer" class="flex items-center space-x-2 px-4 h-[50px] bg-gradient-to-r from-green-500 to-green-600 text-slate-900 rounded-lg hover:shadow-lg transition-all font-semibold text-sm shadow-lg shadow-green-500/20 w-full justify-center"><span>${data.ctaText || 'Play Now'}</span><span>↗</span></a>` : ''}
                             </div>
                         </div>
                     </div>

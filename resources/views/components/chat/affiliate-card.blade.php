@@ -61,7 +61,7 @@
                 <a href="{{ $data['url'] }}" 
                    target="_blank" 
                    rel="noopener noreferrer"
-                   class="inline-flex items-center space-x-2 px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors font-medium text-sm">
+                   class="flex items-center justify-center space-x-2 px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:bg-accent/90 transition-colors font-medium text-sm w-full sm:w-auto">
                     <span>{{ $data['ctaText'] ?? 'Play Now' }}</span>
                     <flux:icon name="arrow-top-right-on-square" class="w-4 h-4" />
                 </a>
