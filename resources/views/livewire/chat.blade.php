@@ -145,7 +145,6 @@ function chatInterface() {
             const livewireMessages = @json($messages);
             this.messages = livewireMessages || [];
             
-            
             // Sync with Livewire whenever messages change (but don't auto-save during streaming)
             this.$watch('messages', value => {
                 // Update Livewire component
@@ -158,10 +157,20 @@ function chatInterface() {
             
             
             
-            // Focus the input field on page load
+            // Focus the input field and scroll to bottom on page load
             this.$nextTick(() => {
                 if (this.$refs.messageInput) {
                     this.$refs.messageInput.focus();
+                }
+                
+                // If there are existing messages, scroll to bottom immediately after DOM update
+                if (this.messages && this.messages.length > 0) {
+                    // Use multiple attempts to ensure scrolling works
+                    this.scrollToBottom();
+                    // Fallback scroll after a very short delay
+                    setTimeout(() => {
+                        this.scrollToBottom();
+                    }, 10);
                 }
             });
             
@@ -428,6 +437,7 @@ function chatInterface() {
         
         
         scrollToBottom() {
+            console.log('scrollToBottom');
             if (this.$refs.chatMessages) {
                 this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
                 // Mark that auto-scrolling has happened

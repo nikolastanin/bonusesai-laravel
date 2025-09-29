@@ -1,11 +1,22 @@
 <?php
 
+use App\Http\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('landing');
 })->name('home');
+
+Route::get('/landing', function () {
+    return view('landing-page-2');
+})->name('homes');
+
+Route::post('/search', [LandingController::class, 'handleSearch'])->name('landing.search');
+
+Route::get('/post-login', [LandingController::class, 'handlePostLogin'])
+    ->middleware(['auth', 'verified'])
+    ->name('post-login');
 
 Route::view('dashboard', 'chat')
     ->middleware(['auth', 'verified'])

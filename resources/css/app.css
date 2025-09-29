@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import 'tailwindcss';
 @import '../../vendor/livewire/flux/dist/flux.css';
 @source '../views';
@@ -23,6 +24,15 @@
     --color-accent: var(--color-purple-500);
     --color-accent-content: var(--color-purple-600);
     --color-accent-foreground: var(--color-white);
+    /* Custom brand colors - direct definition */
+    --color-brandBlue: #244EC3;
+    --color-brandGreen: #28E287;
+    --color-ctaGreen: #27E286;
+    --color-ctaDark: #1B1D28;
+    /* Custom font family */
+    --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    /* Custom box shadow */
+    --shadow-flat: 0 4px 12px -2px rgba(0, 0, 0, 0.3);
 }
 
 @layer theme {
@@ -41,9 +51,15 @@
      ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
     }
+    /* Apply Inter font globally */
+    html,
+    body {
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    }
 }
 
-[data-flux-field]:not(ui-radio, ui-checkbox) {
+[data-flux-field]:not(ui-radio,
+ui-checkbox) {
     @apply grid gap-2;
 }
 

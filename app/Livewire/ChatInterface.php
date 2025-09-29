@@ -138,10 +138,20 @@ class ChatInterface extends Component
         return redirect()->route('chat');
     }
 
+    public function clearLandingPageQuery()
+    {
+        if (session('landing_page_query')) {
+            session()->forget('landing_page_query');
+        }
+    }
+
     public function render()
     {
+        $landingPageQuery = session('landing_page_query');
+        
         return view('livewire.chat-interface', [
-            'threadId' => $this->threadId
+            'threadId' => $this->threadId,
+            'landingPageQuery' => $landingPageQuery
         ]);
     }
 

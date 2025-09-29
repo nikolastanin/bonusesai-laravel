@@ -22,28 +22,7 @@
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @fluxAppearance
 
-    <!-- Tailwind CSS (CDN) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brandBlue: '#244EC3',
-                        brandGreen: '#28E287',
-                        ctaGreen: '#27E286',
-                        ctaDark: '#1B1D28',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        flat: '0 4px 12px -2px rgba(0,0,0,0.3)'
-                    }
-                }
-            }
-        }
-    </script>
+  
 
     <style>
         /* Flat design - removed glass noise texture */
@@ -104,17 +83,19 @@
             <div class="flex items-center justify-between">
                 <a href="#" class="group inline-flex items-center gap-3">
                     <span class="grid h-9 w-9 place-items-center rounded-2xl bg-slate-800 border border-slate-700 shadow-flat">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="text-white/90">
-                <path d="M4 12.5C4 8.91 6.91 6 10.5 6H13.5C17.09 6 20 8.91 20 12.5C20 16.09 17.09 19 13.5 19H10.5C6.91 19 4 16.09 4 12.5Z" fill="currentColor"/>
-                <path d="M8 12.5C8 10.57 9.57 9 11.5 9C13.43 9 15 10.57 15 12.5C15 14.43 13.43 16 11.5 16C9.57 16 8 14.43 8 12.5Z" fill="#28E287"/>
-              </svg>
-            </span>
+                        <img src="https://www.bonus.ca/cdn-cgi/image/format=webp,quality=85/https://media.bonus.ca/images/bf-favicon_wp-300x300.png" alt="" class="border-2 border-none rounded-md">
+
+                    </span>
                     <span class="text-lg font-semibold tracking-tight">
               <span class="bg-gradient-to-r from-brandBlue via-white to-brandGreen bg-clip-text text-transparent">BonusFinder+ai</span>
                     </span>
                 </a>
                 <div class="hidden sm:flex items-center gap-3">
-                    <span class="rounded-full border border-slate-700 bg-slate-800 px-3 py-1 text-xs text-white/70">Early Access</span>
+                    <button class="p-2 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 transition-colors" aria-label="Open main menu">
+                        <svg class="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -137,32 +118,47 @@
             </div>
 
             <!-- Glass search card -->
-            <div class="mx-auto mt-10 max-w-3xl">
-                <div class="relative rounded-3xl border border-slate-700 bg-slate-800/90 p-2 shadow-flat">
-                    <form id="bonus-form" class="relative" action="/dashboard" method="GET">
+            <div class="mx-auto mt-6 sm:mt-10 max-w-3xl px-4 sm:px-0">
+                @if ($errors->any())
+                    <div class="mb-4 rounded-2xl border border-red-500/50 bg-red-500/10 p-3 sm:p-4 text-center">
+                        <p class="text-sm text-red-400">{{ $errors->first() }}</p>
+                    </div>
+                @endif
+                
+                <div class="relative rounded-2xl sm:rounded-3xl border border-slate-700 bg-slate-800/90 p-1.5 sm:p-2 shadow-flat">
+                    <form id="bonus-form" class="relative" action="{{ route('landing.search') }}" method="POST">
+                        @csrf
                         <label for="query" class="sr-only">Your bonus preferences</label>
                         <div class="relative">
-                            <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/60">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-6 w-6">
+                            <span class="pointer-events-none absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-white/60">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 sm:h-6 sm:w-6">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 105.4 5.4a7.5 7.5 0 0011.25 11.25z" />
                   </svg>
                 </span>
-                            <input id="query" name="q" type="text" inputmode="text" autocomplete="off" placeholder="e.g. high RTP slots, no wagering, EU, fast payout" class="h-16 w-full rounded-2xl border border-slate-600 bg-slate-800/80 pl-14 pr-36 text-base text-white placeholder-white/50 outline-none focus:border-brandBlue focus:ring-2 focus:ring-brandBlue/40"/>
+                            <input id="query" name="q" type="text" inputmode="text" autocomplete="off" placeholder="e.g. high RTP slots, no wagering, EU, fast payout" class="h-12 sm:h-16 w-full rounded-xl sm:rounded-2xl border border-slate-600 bg-slate-800/80 pl-11 sm:pl-14 pr-20 sm:pr-36 text-sm sm:text-base text-white placeholder-white/50 outline-none focus:border-brandBlue focus:ring-2 focus:ring-brandBlue/40 disabled:opacity-50 disabled:cursor-not-allowed"/>
 
-                            <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-brandBlue to-brandGreen px-5 py-3 font-semibold text-slate-900 shadow-lg shadow-brandBlue/20 transition active:scale-[0.99]">
-                  <span>Find bonuses</span>
-                  <span class="hidden sm:inline-flex rounded-md bg-black/10 px-2 py-0.5 text-xs text-slate-900">↵ Enter</span>
+                            <!-- Loading indicator overlay for input -->
+                            <div id="input-loading" class="hidden absolute left-11 sm:left-14 top-1/2 -translate-y-1/2 flex items-center gap-2 text-white/70">
+                                <div class="parsing-dot"></div>
+                                <div class="parsing-dot"></div>
+                                <div class="parsing-dot"></div>
+                                <span class="text-sm">Finding bonuses...</span>
+                            </div>
+
+                            <button type="submit" id="submit-btn" class="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 inline-flex items-center gap-1 sm:gap-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-brandBlue to-brandGreen px-3 sm:px-5 py-2 sm:py-3 font-semibold text-slate-900 shadow-lg shadow-brandBlue/20 transition active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm">
+                  <span id="btn-text">Find</span>
+                  <span id="btn-shortcut" class="hidden sm:inline-flex rounded-md bg-black/10 px-2 py-0.5 text-xs text-slate-900">↵ Enter</span>
                 </button>
                         </div>
                     </form>
 
                     <!-- Quick suggestions -->
-                    <div class="mt-3 flex flex-wrap items-center gap-2 px-2 pb-1">
+                    <div class="mt-2 sm:mt-3 flex flex-wrap items-center gap-1.5 sm:gap-2 px-1 sm:px-2 pb-1">
                         <span class="text-xs text-white/60">Try:</span>
-                        <button class="rounded-full border border-slate-600 bg-slate-800 px-3 py-1 text-xs text-white/80 hover:bg-slate-700" data-suggest="No deposit, EU, new players">No deposit</button>
-                        <button class="rounded-full border border-slate-600 bg-slate-800 px-3 py-1 text-xs text-white/80 hover:bg-slate-700" data-suggest="High roller, VIP, 1000€+ bonus">High roller</button>
-                        <button class="rounded-full border border-slate-600 bg-slate-800 px-3 py-1 text-xs text-white/80 hover:bg-slate-700" data-suggest="No wagering, fast payout, trusted">No wagering</button>
-                        <button class="rounded-full border border-slate-600 bg-slate-800 px-3 py-1 text-xs text-white/80 hover:bg-slate-700" data-suggest="Crypto casinos, BTC deposit bonus">Crypto</button>
+                        <button class="rounded-full border border-slate-600 bg-slate-800 px-2 sm:px-3 py-1 text-xs text-white/80 hover:bg-slate-700" data-suggest="No deposit, EU, new players">No deposit</button>
+                        <button class="rounded-full border border-slate-600 bg-slate-800 px-2 sm:px-3 py-1 text-xs text-white/80 hover:bg-slate-700" data-suggest="High roller, VIP, 1000€+ bonus">High roller</button>
+                        <button class="rounded-full border border-slate-600 bg-slate-800 px-2 sm:px-3 py-1 text-xs text-white/80 hover:bg-slate-700" data-suggest="No wagering, fast payout, trusted">No wagering</button>
+                        <button class="rounded-full border border-slate-600 bg-slate-800 px-2 sm:px-3 py-1 text-xs text-white/80 hover:bg-slate-700" data-suggest="Crypto casinos, BTC deposit bonus">Crypto</button>
                     </div>
                 </div>
             </div>
@@ -171,8 +167,8 @@
     </main>
 
     <!-- Footer -->
-    <footer class="relative z-10 border-t border-slate-700">
-        <div class="mx-auto max-w-7xl px-6 py-12">
+    <footer class="relative z-10 ">
+        <div class="mx-auto max-w-4xl px-6 py-12 border-t border-slate-700">
             <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
                 <p class="text-xs text-white/50">© <span id="year"></span> BonusFinder+ai. All rights reserved.</p>
                 <div class="flex items-center gap-3 text-xs text-white/60">
@@ -185,12 +181,27 @@
     </footer>
 
     <script>
-        // Handle form submission
+        // Handle form submission with loading state
         document.getElementById('bonus-form').addEventListener('submit', function(e) {
             const query = document.getElementById('query').value.trim();
+            const submitBtn = document.getElementById('submit-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnShortcut = document.getElementById('btn-shortcut');
+            const inputLoading = document.getElementById('input-loading');
+            const queryInput = document.getElementById('query');
+            
             if (query) {
-                // The form will naturally redirect to /dashboard with the query parameter
-                // No need to prevent default behavior
+                // Show loading state
+                submitBtn.disabled = true;
+                btnText.textContent = 'Find';
+                btnShortcut.classList.add('hidden');
+                
+                // Hide input text and show loading indicator
+                queryInput.style.color = 'transparent';
+                queryInput.readOnly = true;
+                inputLoading.classList.remove('hidden');
+                
+                // Allow form to submit normally - don't prevent default
             } else {
                 e.preventDefault();
                 alert('Please enter a search query');

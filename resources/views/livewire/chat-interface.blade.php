@@ -2,7 +2,7 @@
      x-data="chatInterface()" 
      x-init="init()">
      {{-- todo:this adds gradient bg --}}
-    {{-- <!-- Background aesthetic: gradient + blurred blobs -->
+    <!-- Background aesthetic: gradient + blurred blobs -->
     <div class="fixed inset-0 -z-10 overflow-hidden">
         <!-- Dark mode background -->
         <div class="dark:block hidden">
@@ -16,7 +16,7 @@
             <div class="absolute -bottom-40 -right-40 h-[46rem] w-[46rem] rounded-full bg-green-200/30 blur-3xl"></div>
             <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_50%_at_50%_0%,rgba(0,0,0,0.02)_0%,rgba(255,255,255,0.0)_60%)]"></div>
         </div>
-    </div> --}}
+    </div>
 
     <!-- Chat Interface -->
     <div class="w-full chat-container flex flex-col h-full relative z-10 overflow-hidden">
@@ -24,9 +24,7 @@
         <div class="flex-shrink-0 pb-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-green-500 rounded-lg flex items-center justify-center shadow-lg">
-                        <span class="text-white font-bold text-sm">AI</span>
-                    </div>
+                   
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">BonusGPT</h3>
                         <p class="text-sm text-gray-600 dark:text-white/70">Chat your way to the best bonuses</p>
@@ -149,6 +147,21 @@ function chatInterface() {
             // Initialize threadId from Livewire
             this.threadId = '{{ $threadId }}' || null;
             
+            // Check for landing page query
+            const landingPageQuery = @json($landingPageQuery);
+            if (landingPageQuery && this.messages.length === 0) {
+                // Clear the flag immediately when we detect it
+                @this.call('clearLandingPageQuery');
+                
+                // Auto-submit the query after a short delay to ensure everything is loaded
+                setTimeout(() => {
+                    this.currentInput = landingPageQuery;
+                    this.sendMessage();
+                    // Clear the input after auto-submitting
+                    this.currentInput = '';
+                }, 500);
+            }
+            
             // Sync with Livewire whenever messages change (but don't auto-save during streaming)
             this.$watch('messages', value => {
                 // Update Livewire component
@@ -208,10 +221,20 @@ function chatInterface() {
             
             
             
-            // Focus the input field on page load
+            // Focus the input field and scroll to bottom on page load
             this.$nextTick(() => {
                 if (this.$refs.messageInput) {
                     this.$refs.messageInput.focus();
+                }
+                
+                // If there are existing messages, scroll to bottom immediately after DOM update
+                if (this.messages && this.messages.length > 0) {
+                    // Use multiple attempts to ensure scrolling works
+                    this.scrollToBottom();
+                    // Fallback scroll after a very short delay
+                    setTimeout(() => {
+                        this.scrollToBottom();
+                    }, 10);
                 }
             });
             
