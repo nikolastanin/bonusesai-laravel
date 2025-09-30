@@ -193,8 +193,8 @@ function chatInterface() {
         },
         
         
-        formatContent(content, renderJson = false) {
-            console.log('formatContent called with:', content, 'renderJson:', renderJson);
+        formatContent(content, renderJson = false, renderHtml = false) {
+            console.log('formatContent called with:', content, 'renderJson:', renderJson, 'renderHtml:', renderHtml);
             
             // Add <br> tags for line breaks, but handle multiple newlines better
             let formattedContent = content
@@ -203,10 +203,23 @@ function chatInterface() {
             
             // Replace JSON blocks with placeholder markers and extract data
             let jsonSnippets = [];
+            let htmlSnippets = [];
             let snippetIndex = 0;
             
-            // During streaming, show placeholders and replace them as soon as JSON is complete
-            if (!renderJson) {
+            // Check for HTML content without code blocks (fallback detection)
+            const htmlTableRegex = /<table[\s\S]*?<\/table>/gi;
+            const hasHtmlTable = htmlTableRegex.test(formattedContent);
+            
+            if (hasHtmlTable && !renderHtml) {
+                console.log('Found HTML table content, processing...');
+                formattedContent = formattedContent.replace(htmlTableRegex, (match) => {
+                    htmlSnippets.push(match);
+                    return this.renderHtmlSnippet(match);
+                });
+            }
+            
+            // During streaming, show placeholders and replace them as soon as JSON/HTML is complete
+            if (!renderJson && !renderHtml) {
                 // First, process complete JSON blocks and render them immediately
                 formattedContent = formattedContent.replace(/```json\s*([\s\S]*?)```/g, (match, jsonContent) => {
                     try {
@@ -225,11 +238,30 @@ function chatInterface() {
                     }
                 });
                 
+                // Process complete HTML blocks and render them immediately
+                formattedContent = formattedContent.replace(/```html\s*([\s\S]*?)```/g, (match, htmlContent) => {
+                    try {
+                        const cleanHtmlContent = htmlContent.replace(/<br\s*\/?>/gi, '\n').trim();
+                        htmlSnippets.push(cleanHtmlContent);
+                        // Render the HTML immediately during streaming
+                        return this.renderHtmlSnippet(cleanHtmlContent);
+                    } catch (e) {
+                        console.warn('Failed to parse HTML snippet during streaming:', htmlContent, e);
+                        return '<div class="mt-4 p-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-gray-200 dark:border-slate-700/50 rounded-lg shadow-lg"><div class="flex items-center space-x-3"><div class="parsing-indicator"><div class="parsing-dot"></div><div class="parsing-dot"></div><div class="parsing-dot"></div></div><span class="text-sm text-gray-600 dark:text-white/60">🎲 Rolling the dice and parsing results...</span></div></div>';
+                    }
+                });
+                
                 // Then, show placeholders for incomplete JSON blocks (those that start with ```json but don't have closing ```)
                 formattedContent = formattedContent.replace(/```json[\s\S]*?(?=```|$)/g, '<div class="mt-4 p-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-gray-200 dark:border-slate-700/50 rounded-lg shadow-lg"><div class="flex items-center space-x-3"><div class="parsing-indicator"><div class="parsing-dot"></div><div class="parsing-dot"></div><div class="parsing-dot"></div></div><span class="text-sm text-gray-600 dark:text-white/60">🎲 Rolling the dice and parsing results...</span></div></div>');
                 
+                // Show placeholders for incomplete HTML blocks
+                formattedContent = formattedContent.replace(/```html[\s\S]*?(?=```|$)/g, '<div class="mt-4 p-4 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-gray-200 dark:border-slate-700/50 rounded-lg shadow-lg"><div class="flex items-center space-x-3"><div class="parsing-indicator"><div class="parsing-dot"></div><div class="parsing-dot"></div><div class="parsing-dot"></div></div><span class="text-sm text-gray-600 dark:text-white/60">🎲 Rolling the dice and parsing results...</span></div></div>');
+                
                 // Hide single backtick JSON blocks
                 formattedContent = formattedContent.replace(/`json\s*([\s\S]*?)`/g, '');
+                
+                // Hide single backtick HTML blocks
+                formattedContent = formattedContent.replace(/`html\s*([\s\S]*?)`/g, '');
             }
             
             // Replace triple backtick JSON blocks
@@ -255,6 +287,27 @@ function chatInterface() {
                     }
                 } catch (e) {
                     console.warn('Failed to parse JSON snippet:', jsonContent, e);
+                    return '';
+                }
+            });
+            
+            // Replace triple backtick HTML blocks
+            formattedContent = formattedContent.replace(/```html\s*([\s\S]*?)```/g, (match, htmlContent) => {
+                console.log('Found triple backtick HTML:', match);
+                try {
+                    // Remove <br> tags from HTML content before processing
+                    const cleanHtmlContent = htmlContent.replace(/<br\s*\/?>/gi, '\n').trim();
+                    htmlSnippets.push(cleanHtmlContent);
+                    
+                    if (renderHtml) {
+                        // Replace with actual rendered HTML
+                        return this.renderHtmlSnippet(cleanHtmlContent);
+                    } else {
+                        // Hide HTML during streaming - return empty string
+                        return '';
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse HTML snippet:', htmlContent, e);
                     return '';
                 }
             });
@@ -286,6 +339,37 @@ function chatInterface() {
                 }
             });
             
+            // Replace single backtick HTML blocks
+            formattedContent = formattedContent.replace(/`html\s*([\s\S]*?)`/g, (match, htmlContent) => {
+                console.log('Found single backtick HTML:', match);
+                try {
+                    // Remove <br> tags from HTML content before processing
+                    const cleanHtmlContent = htmlContent.replace(/<br\s*\/?>/gi, '\n').trim();
+                    htmlSnippets.push(cleanHtmlContent);
+                    
+                    if (renderHtml) {
+                        // Replace with actual rendered HTML
+                        return this.renderHtmlSnippet(cleanHtmlContent);
+                    } else {
+                        // Hide HTML during streaming - return empty string
+                        return '';
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse HTML snippet:', htmlContent, e);
+                    return '';
+                }
+            });
+            
+            // Final fallback: Check for any remaining HTML table content
+            if (renderHtml) {
+                const remainingHtmlTableRegex = /<table[\s\S]*?<\/table>/gi;
+                formattedContent = formattedContent.replace(remainingHtmlTableRegex, (match) => {
+                    console.log('Found remaining HTML table in final render:', match);
+                    htmlSnippets.push(match);
+                    return this.renderHtmlSnippet(match);
+                });
+            }
+            
             // Convert markdown
             formattedContent = formattedContent
                 .replace(/### (.*?)(?=<br>|$)/g, '<h3 class="text-lg font-semibold text-gray-900 dark:text-white mt-4 mb-2">$1</h3>')
@@ -300,11 +384,12 @@ function chatInterface() {
                 .replace(/^#\s*<br>/g, '') // Remove # at start of content
                 .replace(/<br>\s*#\s*$/g, ''); // Remove # at end of content
             
-            console.log('Final result:', { content: formattedContent, jsonSnippets });
+            console.log('Final result:', { content: formattedContent, jsonSnippets, htmlSnippets });
                 
             return {
                 content: formattedContent,
-                jsonSnippets: jsonSnippets
+                jsonSnippets: jsonSnippets,
+                htmlSnippets: htmlSnippets
             };
         },
         
@@ -433,6 +518,11 @@ function chatInterface() {
                 // Hide raw JSON from users - return empty string
                 return '';
             }
+        },
+        
+        renderHtmlSnippet(htmlContent) {
+            // Return HTML content directly without wrapper
+            return htmlContent;
         },
         
         
@@ -644,9 +734,10 @@ function chatInterface() {
                                         
                                         // Update the existing assistant message content (accumulate)
                                         assistantMessage.content += content;
-                                        const formatted = this.formatContent(assistantMessage.content, false); // Use placeholders during streaming
+                                        const formatted = this.formatContent(assistantMessage.content, false, false); // Use placeholders during streaming
                                         assistantMessage.formattedContent = formatted.content;
                                         assistantMessage.jsonSnippets = formatted.jsonSnippets;
+                                        assistantMessage.htmlSnippets = formatted.htmlSnippets;
                                         
                                         // Update the last message in the messages array
                                         const lastMessageIndex = this.messages.length - 1;
@@ -655,7 +746,8 @@ function chatInterface() {
                                                 ...this.messages[lastMessageIndex],
                                                 content: assistantMessage.content,
                                                 formattedContent: assistantMessage.formattedContent,
-                                                jsonSnippets: assistantMessage.jsonSnippets
+                                                jsonSnippets: assistantMessage.jsonSnippets,
+                                                htmlSnippets: assistantMessage.htmlSnippets
                                             };
                                         }
                                         
@@ -739,19 +831,21 @@ function chatInterface() {
                 console.log('🏁 Streaming finished');
                 console.log('🔍 Final messages state:', this.messages);
                 
-                // Final JSON rendering - process all messages to render JSON
+                // Final JSON/HTML rendering - process all messages to render JSON and HTML
                 this.messages.forEach((message, index) => {
-                    // Re-format content with actual JSON HTML
-                    const formatted = this.formatContent(message.content, true); // renderJson = true
-                    if (formatted.jsonSnippets && formatted.jsonSnippets.length > 0) {
+                    // Re-format content with actual JSON and HTML
+                    const formatted = this.formatContent(message.content, true, true); // renderJson = true, renderHtml = true
+                    if ((formatted.jsonSnippets && formatted.jsonSnippets.length > 0) || (formatted.htmlSnippets && formatted.htmlSnippets.length > 0)) {
                         message.formattedContent = formatted.content;
                         message.jsonSnippets = formatted.jsonSnippets;
+                        message.htmlSnippets = formatted.htmlSnippets;
                         
                         // Update the message in the array
                         this.messages[index] = {
                             ...message,
                             formattedContent: formatted.content,
-                            jsonSnippets: formatted.jsonSnippets
+                            jsonSnippets: formatted.jsonSnippets,
+                            htmlSnippets: formatted.htmlSnippets
                         };
                     }
                 });
